@@ -27,23 +27,21 @@ enum MessageTypes {
     }
   }
 
-  
-
   static MessageTypes fromString(String string) {
-    switch (string) {
-      case 'text':
+    switch (string.toLowerCase()) {
+      case "text":
         return MessageTypes.text;
-      case 'prescription':
+      case "prescription":
         return MessageTypes.prescription;
-      case 'image':
+      case "image":
         return MessageTypes.image;
-      case 'audio':
+      case "audio":
         return MessageTypes.audio;
-      case 'video_call_request':
+      case "video_call_request":
         return MessageTypes.videoCallRequest;
-      case 'video':
+      case "video":
         return MessageTypes.video;
-      case 'audio_call_request':
+      case "audio_call_request":
         return MessageTypes.audioCallRequest;
       default:
         return MessageTypes.text;
