@@ -40,6 +40,7 @@ class VideoCallScreen extends ConsumerStatefulWidget {
 }
 
 class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
+  bool isVideoPlaying = true;
   @override
   void initState() {
     super.initState();
@@ -77,7 +78,13 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
         child: Stack(
           children: [
             Center(
-              child: _renderRemoteVideo(),
+              child: isVideoPlaying
+                  ? _renderRemoteVideo()
+                  : Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.black,
+                    ),
             ),
             if (!widget.audioOnly)
               Align(
@@ -123,9 +130,14 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
                     Consumer(builder: (context, ref, child) {
                       final state = ref.watch(localVideoStopped);
                       return ThatButton(
-                        onPressed: () => ref
-                            .read(videoCallController.notifier)
-                            .switchLocalVideoStream(),
+                        onPressed: () {
+                          ref
+                              .read(videoCallController.notifier)
+                              .switchLocalVideoStream();
+                          setState(() {
+                            isVideoPlaying = !isVideoPlaying;
+                          });
+                        },
                         isRed: state,
                         redIcon: Assets.icons.videoSlash,
                         whiteIcon: Assets.icons.video2,
