@@ -4,17 +4,23 @@ import '../gen/assets.gen.dart';
 import '../theme/colors.dart' as colors;
 
 class EndCallButton extends StatelessWidget {
-  const EndCallButton({super.key, required this.onPressed});
+  const EndCallButton(
+      {super.key,
+      required this.onPressed,
+      required this.redIcon,
+      required this.whiteIcon});
 
   final VoidCallback onPressed;
+  final SvgGenImage redIcon;
+  final SvgGenImage whiteIcon;
 
   @override
   Widget build(BuildContext context) {
     return ThatButton(
       onPressed: onPressed,
       isRed: true,
-      redIcon: Assets.icons.callSlash,
-      whiteIcon: Assets.icons.callSlash,
+      redIcon: redIcon,
+      whiteIcon: whiteIcon,
       iconHeight: MediaQuery.of(context).size.width * 0.1,
     );
   }
