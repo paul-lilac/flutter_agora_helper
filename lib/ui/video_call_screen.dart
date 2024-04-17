@@ -78,7 +78,7 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
         child: Stack(
           children: [
             Center(
-              child: isVideoPlaying
+              child: !ref.read(videoCallController.notifier).videoStopped
                   ? _renderRemoteVideo()
                   : Container(
                       height: MediaQuery.of(context).size.height,
@@ -167,13 +167,6 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
           final user = ref.watch(remoteUser);
           if (user == null) {
             return child!;
-          }
-          if (ref.read(videoCallController.notifier).videoStopped) {
-            return Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              color: Colors.black,
-            );
           }
           return AgoraVideoView(
             controller: VideoViewController.remote(
