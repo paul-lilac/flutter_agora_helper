@@ -9,7 +9,9 @@ import '../src/video_call_controller/video_call_controller.dart';
 import 'buttons.dart';
 
 class VideoCallScreen extends ConsumerStatefulWidget {
-  const VideoCallScreen({
+  const VideoCallScreen(
+    this.redIcon,
+    this.whiteIcon, {
     Key? key,
     required this.token,
     required this.channelName,
@@ -29,6 +31,9 @@ class VideoCallScreen extends ConsumerStatefulWidget {
   final ClientRoleType role;
   final Color bgColor;
   final String avatarUrl;
+
+  final SvgGenImage redIcon;
+  final SvgGenImage whiteIcon;
 
   @override
   ConsumerState<VideoCallScreen> createState() => _VideoCallScreenState();
@@ -127,6 +132,8 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
                       );
                     }),
                   EndCallButton(
+                    redIcon: widget.redIcon,
+                    whiteIcon: widget.whiteIcon,
                     onPressed: () {
                       ref.read(videoCallController.notifier).leave();
                     },
