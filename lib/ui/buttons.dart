@@ -27,9 +27,15 @@ class EndCallButton extends StatelessWidget {
 }
 
 class AcceptCallButton extends StatelessWidget {
-  const AcceptCallButton({super.key, required this.onPressed});
+  const AcceptCallButton(
+      {super.key,
+      required this.onPressed,
+      required this.redIcon,
+      required this.whiteIcon});
 
   final VoidCallback onPressed;
+  final SvgGenImage redIcon;
+  final SvgGenImage whiteIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +43,8 @@ class AcceptCallButton extends StatelessWidget {
       onPressed: onPressed,
       isRed: false,
       color: colors.green,
-      redIcon: Assets.icons.call3,
-      whiteIcon: Assets.icons.call3,
+      redIcon: redIcon,
+      whiteIcon: whiteIcon,
       iconHeight: MediaQuery.of(context).size.width * 0.1,
     );
   }
