@@ -168,6 +168,13 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
           if (user == null) {
             return child!;
           }
+          if (ref.read(videoCallController.notifier).videoStopped) {
+            return Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              color: Colors.black,
+            );
+          }
           return AgoraVideoView(
             controller: VideoViewController.remote(
               rtcEngine: AgoraRtcEngine.rtcEngine,

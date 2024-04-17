@@ -31,6 +31,7 @@ class VideoCallController extends StateNotifier<void> {
 
   late RtcEngine rtcEngine;
   final Ref ref;
+  bool videoStopped = false;
 
   Future<void> setupVideoSDKEngine(bool audioOnly) async {
     await [Permission.microphone, Permission.camera].request();
@@ -82,6 +83,14 @@ class VideoCallController extends StateNotifier<void> {
         },
         onPermissionError: (permissionType) {
           log("PermissionError: ${permissionType.name}");
+        },
+        onLocalVideoStateChanged: (source, state, reason) {
+          if (state == LocalVideoStreamState.localVideoStreamStateStopped ||
+              state == LocalVideoStreamState.localVideoStreamStateFailed) {
+            videoStopped = true;
+          } else {
+            videoStopped = false;
+          }
         },
       ));
       log("Event handlers Set");
