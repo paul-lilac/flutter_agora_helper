@@ -84,6 +84,16 @@ class VideoCallController extends StateNotifier<void> {
         onPermissionError: (permissionType) {
           log("PermissionError: ${permissionType.name}");
         },
+        onRemoteVideoStateChanged:
+            (connection, remoteUid, state, reason, elapsed) {
+          if (state == RemoteVideoState.remoteVideoStateStopped ||
+              state == RemoteVideoState.remoteVideoStateFrozen ||
+              state == RemoteVideoState.remoteVideoStateFailed) {
+            videoStopped = true;
+          } else {
+            videoStopped = false;
+          }
+        },
         onLocalVideoStateChanged: (source, state, reason) {
           if (state == LocalVideoStreamState.localVideoStreamStateStopped ||
               state == LocalVideoStreamState.localVideoStreamStateFailed) {
