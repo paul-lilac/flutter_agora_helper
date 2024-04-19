@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_agora_helper/ui/no_video_view.dart';
@@ -21,6 +23,7 @@ class VideoCallScreen extends ConsumerStatefulWidget {
     required this.role,
     required this.bgColor,
     required this.avatarUrl,
+    required this.name,
   }) : super(key: key);
 
   final String channelName;
@@ -34,19 +37,39 @@ class VideoCallScreen extends ConsumerStatefulWidget {
 
   final SvgGenImage redIcon;
   final SvgGenImage whiteIcon;
+  final String name;
 
   @override
   ConsumerState<VideoCallScreen> createState() => _VideoCallScreenState();
 }
 
 class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
-  bool isVideoPlaying = true;
+  late Timer _timer;
+  int _callDuration = 0;
+
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) => startCall(),
+      (_) {
+        ref.read(localAudioMuted.notifier).state = false;
+        ref.read(remoteAudioMuted.notifier).state = false;
+        ref.read(localVideoStopped.notifier).state = false;
+        startCall();
+      },
     );
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _callDuration++;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   Future<void> startCall() async {
@@ -60,6 +83,14 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
           token: widget.token,
           role: widget.role,
         );
+  }
+
+  String _formatDuration(int seconds) {
+    int minutes = seconds ~/ 60;
+    int remainingSeconds = seconds % 60;
+    String minutesStr = minutes.toString().padLeft(2, '0');
+    String secondsStr = remainingSeconds.toString().padLeft(2, '0');
+    return '$minutesStr:$secondsStr';
   }
 
   @override
@@ -77,15 +108,7 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            Center(
-              child: !ref.read(videoCallController.notifier).videoStopped
-                  ? _renderRemoteVideo()
-                  : Container(
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      color: Colors.black,
-                    ),
-            ),
+            Center(child: _renderRemoteVideo()),
             if (!widget.audioOnly)
               Align(
                 alignment: Alignment.topLeft,
@@ -97,6 +120,24 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
                   ),
                 ),
               ),
+            Positioned(
+              left: 0.0,
+              right: 0.0,
+              bottom: 112.0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _formatDuration(_callDuration),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Positioned(
               left: 0.0,
               right: 0.0,
@@ -134,9 +175,6 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
                           ref
                               .read(videoCallController.notifier)
                               .switchLocalVideoStream();
-                          setState(() {
-                            isVideoPlaying = !isVideoPlaying;
-                          });
                         },
                         isRed: state,
                         redIcon: Assets.icons.videoSlash,
@@ -147,6 +185,9 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
                     redIcon: widget.redIcon,
                     whiteIcon: widget.whiteIcon,
                     onPressed: () {
+                      ref.read(localAudioMuted.notifier).state = false;
+                      ref.read(remoteAudioMuted.notifier).state = false;
+                      ref.read(localVideoStopped.notifier).state = false;
                       ref.read(videoCallController.notifier).leave();
                     },
                   ),
@@ -179,6 +220,7 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
         child: NoVideoView(
           avatarUrl: widget.avatarUrl,
           bgColor: widget.bgColor,
+          name: widget.name,
         ),
       );
 
