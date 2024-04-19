@@ -31,7 +31,6 @@ class VideoCallController extends StateNotifier<void> {
 
   late RtcEngine rtcEngine;
   final Ref ref;
-  bool videoStopped = false;
 
   Future<void> setupVideoSDKEngine(bool audioOnly) async {
     await [Permission.microphone, Permission.camera].request();
@@ -78,29 +77,23 @@ class VideoCallController extends StateNotifier<void> {
           log("remote user $remoteUid left ${connection.channelId}");
           leave();
         },
+        onRemoteVideoStateChanged:
+            (connection, remoteUid, state, reason, elapsed) {
+          if (state == RemoteVideoState.remoteVideoStateStopped) {
+            // Remote user stopped sending video
+            ref.read(remoteUser.notifier).state =
+                null; // Set remoteUser state to null
+          } else if (state == RemoteVideoState.remoteVideoStateDecoding) {
+            // Remote user's video stream is being decoded
+            ref.read(remoteUser.notifier).state =
+                remoteUid; // Update remoteUser state with remoteUid
+          }
+        },
         onError: (err, msg) {
           log("Error: ${err.name} - $msg");
         },
         onPermissionError: (permissionType) {
           log("PermissionError: ${permissionType.name}");
-        },
-        onRemoteVideoStateChanged:
-            (connection, remoteUid, state, reason, elapsed) {
-          if (state == RemoteVideoState.remoteVideoStateStopped ||
-              state == RemoteVideoState.remoteVideoStateFrozen ||
-              state == RemoteVideoState.remoteVideoStateFailed) {
-            videoStopped = true;
-          } else {
-            videoStopped = false;
-          }
-        },
-        onLocalVideoStateChanged: (source, state, reason) {
-          if (state == LocalVideoStreamState.localVideoStreamStateStopped ||
-              state == LocalVideoStreamState.localVideoStreamStateFailed) {
-            videoStopped = true;
-          } else {
-            videoStopped = false;
-          }
         },
       ));
       log("Event handlers Set");
@@ -153,7 +146,7 @@ class VideoCallController extends StateNotifier<void> {
 
   Future<void> switchLocalVideoStream() async {
     final value = ref.read(localVideoStopped);
-    rtcEngine.muteLocalVideoStream(!value);
+    rtcEngine.muteAllRemoteVideoStreams(!value);
     ref.read(localVideoStopped.notifier).state = !value;
   }
 
