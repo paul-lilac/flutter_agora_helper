@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 import '../gen/assets.gen.dart';
 
@@ -8,10 +10,12 @@ class NoVideoView extends StatelessWidget {
     super.key,
     required this.avatarUrl,
     required this.bgColor,
+    required this.name,
   });
 
   final String avatarUrl;
   final Color bgColor;
+  final String name;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +25,7 @@ class NoVideoView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
-             crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(flex: 1),
               CachedNetworkImage(
@@ -44,6 +48,16 @@ class NoVideoView extends StatelessWidget {
                 progressIndicatorBuilder: (context, url, progress) =>
                     _placeholder(
                   MediaQuery.of(context).size.width * 0.25,
+                ),
+              ),
+              const Gap(24),
+              AutoSizeText(
+                name.trim(),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 34.0,
                 ),
               ),
               const Spacer(flex: 4),
