@@ -89,6 +89,9 @@ class VideoCallController extends StateNotifier<void> {
                 remoteUid; // Update remoteUser state with remoteUid
           }
         },
+        onUserMuteAudio: (connection, remoteUid, muted) {
+          ref.read(localAudioMuted.notifier).state = muted;
+        },
         onError: (err, msg) {
           log("Error: ${err.name} - $msg");
         },
