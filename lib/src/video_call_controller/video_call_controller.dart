@@ -77,20 +77,31 @@ class VideoCallController extends StateNotifier<void> {
           log("remote user $remoteUid left ${connection.channelId}");
           leave();
         },
-        onRemoteVideoStateChanged:
-            (connection, remoteUid, state, reason, elapsed) {
-          if (state == RemoteVideoState.remoteVideoStateStopped) {
+        // onRemoteVideoStateChanged:
+        //     (connection, remoteUid, state, reason, elapsed) {
+        //   if (state == RemoteVideoState.remoteVideoStateStopped) {
+        //     // Remote user stopped sending video
+        //     ref.read(remoteUser.notifier).state =
+        //         null; // Set remoteUser state to null
+        //   } else if (state == RemoteVideoState.remoteVideoStateDecoding) {
+        //     // Remote user's video stream is being decoded
+        //     ref.read(remoteUser.notifier).state =
+        //         remoteUid; // Update remoteUser state with remoteUid
+        //   }
+        // },
+        onUserMuteAudio: (connection, remoteUid, muted) {
+          rtcEngine.muteAllRemoteAudioStreams(muted);
+        },
+        onUserMuteVideo: (connection, remoteUid, muted) {
+          if (muted) {
             // Remote user stopped sending video
             ref.read(remoteUser.notifier).state =
                 null; // Set remoteUser state to null
-          } else if (state == RemoteVideoState.remoteVideoStateDecoding) {
+          } else {
             // Remote user's video stream is being decoded
             ref.read(remoteUser.notifier).state =
                 remoteUid; // Update remoteUser state with remoteUid
           }
-        },
-        onUserMuteAudio: (connection, remoteUid, muted) {
-          ref.read(localAudioMuted.notifier).state = muted;
         },
         onError: (err, msg) {
           log("Error: ${err.name} - $msg");
@@ -149,7 +160,7 @@ class VideoCallController extends StateNotifier<void> {
 
   Future<void> switchLocalVideoStream() async {
     final value = ref.read(localVideoStopped);
-    rtcEngine.muteAllRemoteVideoStreams(!value);
+    rtcEngine.muteLocalVideoStream(!value);
     ref.read(localVideoStopped.notifier).state = !value;
   }
 
