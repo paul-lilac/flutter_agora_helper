@@ -33,7 +33,11 @@ class VideoCallController extends StateNotifier<void> {
   final Ref ref;
 
   Future<void> setupVideoSDKEngine(bool audioOnly) async {
-    await [Permission.microphone, Permission.camera].request();
+    if (audioOnly) {
+      await Permission.microphone.request();
+    } else {
+      await [Permission.microphone, Permission.camera].request();
+    }
 
     if (!audioOnly) {
       const configuration = VideoEncoderConfiguration(
@@ -126,6 +130,9 @@ class VideoCallController extends StateNotifier<void> {
     try {
       if (!audioOnly) {
         await rtcEngine.enableVideo();
+      } else {
+        await rtcEngine.disableVideo();
+        rtcEngine.setDefaultAudioRouteToSpeakerphone(!audioOnly);
       }
       log("joining channel : $channelName, role: ${role.toString()}");
 
@@ -156,6 +163,12 @@ class VideoCallController extends StateNotifier<void> {
     final value = ref.read(remoteAudioMuted);
     rtcEngine.muteAllRemoteAudioStreams(!value);
     ref.read(remoteAudioMuted.notifier).state = !value;
+  }
+
+  Future<void> changeAudioRoute() async {
+    final value = !ref.read(isSpeaker);
+    rtcEngine.setDefaultAudioRouteToSpeakerphone(value);
+    ref.read(isSpeaker.notifier).state = value;
   }
 
   Future<void> switchLocalVideoStream() async {

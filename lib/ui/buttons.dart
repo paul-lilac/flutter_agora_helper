@@ -85,6 +85,7 @@ class ThatButton extends StatelessWidget {
         child: (isRed ? redIcon : whiteIcon).svg(
           color: colors.white,
           height: iconHeight ?? MediaQuery.of(context).size.width * 0.06,
+          package: "flutter_agora_helper",
         ),
       ),
     );

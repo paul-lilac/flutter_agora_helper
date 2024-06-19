@@ -7,6 +7,7 @@ final localVideoStopped = StateProvider<bool>((ref) => false);
 final remoteAudioMuted = StateProvider<bool>((ref) => false);
 final remoteVideoStopped = StateProvider<bool>((ref) => false);
 final rtcEngine = StateProvider<RtcEngine>((ref) => AgoraRtcEngine.rtcEngine);
+final isSpeaker = StateProvider<bool>((ref) => false);
 
 final videoCallController = StateNotifierProvider(
   (ref) => VideoCallController(ref),

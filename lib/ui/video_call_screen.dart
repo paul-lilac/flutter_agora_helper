@@ -10,6 +10,9 @@ import '../src/agora_rtc_engine.dart';
 import '../src/video_call_controller/video_call_controller.dart';
 import 'buttons.dart';
 
+import 'package:proximity_screen_lock/proximity_screen_lock.dart';
+import 'package:proximity_sensor/proximity_sensor.dart';
+
 class VideoCallScreen extends ConsumerStatefulWidget {
   const VideoCallScreen(
     this.redIcon,
@@ -47,9 +50,16 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
   late Timer _timer;
   int _callDuration = 0;
 
+  late StreamSubscription<dynamic> _streamSubscription;
+  bool _isNear = false;
+
   @override
   void initState() {
     super.initState();
+
+    if (widget.audioOnly) {
+      _listenSensor();
+    }
 
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
@@ -70,6 +80,22 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
   void dispose() {
     _timer.cancel();
     super.dispose();
+    _streamSubscription.cancel();
+  }
+
+  Future<void> _listenSensor() async {
+    _streamSubscription = ProximitySensor.events.listen((int event) {
+      setState(() {
+        _isNear = (event > 0) ? true : false;
+      });
+      _screenLock(_isNear);
+    });
+  }
+
+  Future<void> _screenLock(bool value) async {
+    if (await ProximityScreenLock.isProximityLockSupported()) {
+      ProximityScreenLock.setActive(value);
+    }
   }
 
   Future<void> startCall() async {
@@ -139,59 +165,79 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
               ),
             ),
             Positioned(
-              left: 0.0,
-              right: 0.0,
+              left: size.width * (widget.audioOnly ? 0.15 : 0.2),
+              right: size.width * (widget.audioOnly ? 0.15 : 0.2),
               bottom: 24.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Consumer(builder: (context, ref, child) {
-                    final state = ref.watch(localAudioMuted);
-                    return ThatButton(
-                      onPressed: () => ref
-                          .read(videoCallController.notifier)
-                          .swithcLocalAudioStream(),
-                      isRed: state,
-                      redIcon: Assets.icons.microphoneSlash,
-                      whiteIcon: Assets.icons.microphone2,
-                    );
-                  }),
-                  Consumer(builder: (context, ref, child) {
-                    final state = ref.watch(remoteAudioMuted);
-                    return ThatButton(
-                      onPressed: () => ref
-                          .read(videoCallController.notifier)
-                          .switchRemoteAudioStreams(),
-                      isRed: state,
-                      redIcon: Assets.icons.volumeSlash,
-                      whiteIcon: Assets.icons.volumeHigh,
-                    );
-                  }),
-                  if (!widget.audioOnly)
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     Consumer(builder: (context, ref, child) {
-                      final state = ref.watch(localVideoStopped);
+                      final state = ref.watch(localAudioMuted);
                       return ThatButton(
-                        onPressed: () {
-                          ref
-                              .read(videoCallController.notifier)
-                              .switchLocalVideoStream();
-                        },
+                        onPressed: () => ref
+                            .read(videoCallController.notifier)
+                            .swithcLocalAudioStream(),
                         isRed: state,
-                        redIcon: Assets.icons.videoSlash,
-                        whiteIcon: Assets.icons.video2,
+                        redIcon: Assets.icons.microphoneSlash,
+                        whiteIcon: Assets.icons.microphone2,
                       );
                     }),
-                  EndCallButton(
-                    redIcon: widget.redIcon,
-                    whiteIcon: widget.whiteIcon,
-                    onPressed: () {
-                      ref.read(localAudioMuted.notifier).state = false;
-                      ref.read(remoteAudioMuted.notifier).state = false;
-                      ref.read(localVideoStopped.notifier).state = false;
-                      ref.read(videoCallController.notifier).leave();
-                    },
-                  ),
-                ],
+                    Consumer(builder: (context, ref, child) {
+                      final state = ref.watch(remoteAudioMuted);
+                      return ThatButton(
+                        onPressed: () => ref
+                            .read(videoCallController.notifier)
+                            .switchRemoteAudioStreams(),
+                        isRed: state,
+                        redIcon: Assets.icons.pauseSlash,
+                        whiteIcon: Assets.icons.pause,
+                      );
+                    }),
+                    if (widget.audioOnly)
+                      Consumer(builder: (context, ref, child) {
+                        final state = ref.watch(isSpeaker);
+                        return ThatButton(
+                          onPressed: () => ref
+                              .read(videoCallController.notifier)
+                              .changeAudioRoute(),
+                          isRed: state,
+                          redIcon: Assets.icons.volumeHigh,
+                          whiteIcon: Assets.icons.volumeHigh,
+                        );
+                      }),
+                    if (!widget.audioOnly)
+                      Consumer(builder: (context, ref, child) {
+                        final state = ref.watch(localVideoStopped);
+                        return ThatButton(
+                          onPressed: () {
+                            ref
+                                .read(videoCallController.notifier)
+                                .switchLocalVideoStream();
+                          },
+                          isRed: state,
+                          redIcon: Assets.icons.videoSlash,
+                          whiteIcon: Assets.icons.video2,
+                        );
+                      }),
+                    ThatButton(
+                      isRed: true,
+                      redIcon: widget.redIcon,
+                      whiteIcon: widget.whiteIcon,
+                      onPressed: () {
+                        ref.read(localAudioMuted.notifier).state = false;
+                        ref.read(remoteAudioMuted.notifier).state = false;
+                        ref.read(localVideoStopped.notifier).state = false;
+                        ref.read(videoCallController.notifier).leave();
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
