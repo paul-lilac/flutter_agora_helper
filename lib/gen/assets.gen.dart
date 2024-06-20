@@ -31,6 +31,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/call_3.svg
   SvgGenImage get call3 => const SvgGenImage('assets/icons/call_3.svg');
 
+  /// File path: assets/icons/earpiece.svg
+  SvgGenImage get earpiece => const SvgGenImage('assets/icons/earpiece.svg');
+
   /// File path: assets/icons/microphone-2.svg
   SvgGenImage get microphone2 =>
       const SvgGenImage('assets/icons/microphone-2.svg');
@@ -69,6 +72,7 @@ class $AssetsIconsGen {
   List<SvgGenImage> get values => [
         callSlash,
         call3,
+        earpiece,
         microphone2,
         microphoneSlash,
         pauseSlash,

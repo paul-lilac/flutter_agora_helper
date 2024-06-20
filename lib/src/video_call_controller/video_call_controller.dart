@@ -130,9 +130,10 @@ class VideoCallController extends StateNotifier<void> {
     try {
       if (!audioOnly) {
         await rtcEngine.enableVideo();
+        rtcEngine.setDefaultAudioRouteToSpeakerphone(true);
       } else {
         await rtcEngine.disableVideo();
-        rtcEngine.setDefaultAudioRouteToSpeakerphone(!audioOnly);
+        rtcEngine.setDefaultAudioRouteToSpeakerphone(false);
       }
       log("joining channel : $channelName, role: ${role.toString()}");
 
@@ -165,10 +166,12 @@ class VideoCallController extends StateNotifier<void> {
     ref.read(remoteAudioMuted.notifier).state = !value;
   }
 
-  Future<void> changeAudioRoute() async {
-    final value = !ref.read(isSpeaker);
-    rtcEngine.setDefaultAudioRouteToSpeakerphone(value);
-    ref.read(isSpeaker.notifier).state = value;
+  Future<void> changeToSpeaker() async {
+    rtcEngine.setEnableSpeakerphone(true);
+  }
+
+  Future<void> changeToEarpiece() async {
+    rtcEngine.setEnableSpeakerphone(false);
   }
 
   Future<void> switchLocalVideoStream() async {

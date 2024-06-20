@@ -13,6 +13,8 @@ import 'buttons.dart';
 import 'package:proximity_screen_lock/proximity_screen_lock.dart';
 import 'package:proximity_sensor/proximity_sensor.dart';
 
+import '../theme/colors.dart' as colors;
+
 class VideoCallScreen extends ConsumerStatefulWidget {
   const VideoCallScreen(
     this.redIcon,
@@ -52,6 +54,8 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
 
   late StreamSubscription<dynamic> _streamSubscription;
   bool _isNear = false;
+
+  String selectedAudioSource = '';
 
   @override
   void initState() {
@@ -165,8 +169,8 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
               ),
             ),
             Positioned(
-              left: size.width * (widget.audioOnly ? 0.15 : 0.2),
-              right: size.width * (widget.audioOnly ? 0.15 : 0.2),
+              left: size.width * 0.15,
+              right: size.width * 0.15,
               bottom: 24.0,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -188,29 +192,100 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
                         whiteIcon: Assets.icons.microphone2,
                       );
                     }),
-                    Consumer(builder: (context, ref, child) {
-                      final state = ref.watch(remoteAudioMuted);
-                      return ThatButton(
-                        onPressed: () => ref
-                            .read(videoCallController.notifier)
-                            .switchRemoteAudioStreams(),
-                        isRed: state,
-                        redIcon: Assets.icons.pauseSlash,
-                        whiteIcon: Assets.icons.pause,
-                      );
-                    }),
-                    if (widget.audioOnly)
+                    if (!widget.audioOnly)
                       Consumer(builder: (context, ref, child) {
-                        final state = ref.watch(isSpeaker);
+                        final state = ref.watch(remoteAudioMuted);
                         return ThatButton(
                           onPressed: () => ref
                               .read(videoCallController.notifier)
-                              .changeAudioRoute(),
+                              .switchRemoteAudioStreams(),
                           isRed: state,
-                          redIcon: Assets.icons.volumeHigh,
+                          redIcon: Assets.icons.volumeSlash,
                           whiteIcon: Assets.icons.volumeHigh,
                         );
                       }),
+                    if (widget.audioOnly)
+                      PopupMenuButton(
+                          color: Colors.black.withOpacity(0.75),
+                          surfaceTintColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          offset: const Offset(-54, -142),
+                          itemBuilder: (context) {
+                            return [
+                              PopupMenuItem(
+                                value: 'Speaker',
+                                onTap: () {
+                                  ref
+                                      .read(videoCallController.notifier)
+                                      .changeToSpeaker();
+                                  setState(() {
+                                    selectedAudioSource = 'Speaker';
+                                  });
+                                },
+                                child: ListTile(
+                                  leading: Text(
+                                    'Speaker',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: selectedAudioSource == 'Speaker'
+                                          ? Colors.red
+                                          : Colors.white,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  trailing: Assets.icons.volumeHigh.svg(
+                                    color: selectedAudioSource == 'Speaker'
+                                        ? Colors.red
+                                        : Colors.white,
+                                    package: "flutter_agora_helper",
+                                  ),
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: 'Earpiece',
+                                onTap: () {
+                                  ref
+                                      .read(videoCallController.notifier)
+                                      .changeToEarpiece();
+                                  setState(() {
+                                    selectedAudioSource = 'Earpiece';
+                                  });
+                                },
+                                child: ListTile(
+                                  leading: Text(
+                                    'Earpiece',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: selectedAudioSource == 'Earpiece'
+                                          ? Colors.red
+                                          : Colors.white,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  trailing: Assets.icons.earpiece.svg(
+                                    color: selectedAudioSource == 'Earpiece'
+                                        ? Colors.red
+                                        : Colors.white,
+                                    package: "flutter_agora_helper",
+                                  ),
+                                ),
+                              ),
+                            ];
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: colors.light.withOpacity(0.5),
+                            ),
+                            padding: const EdgeInsets.all(12),
+                            child: Assets.icons.volumeHigh.svg(
+                              color: colors.white,
+                              height: MediaQuery.of(context).size.width * 0.06,
+                              package: "flutter_agora_helper",
+                            ),
+                          )),
                     if (!widget.audioOnly)
                       Consumer(builder: (context, ref, child) {
                         final state = ref.watch(localVideoStopped);
