@@ -169,8 +169,8 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
               ),
             ),
             Positioned(
-              left: size.width * 0.15,
-              right: size.width * 0.15,
+              left: size.width * 0.1,
+              right: size.width * 0.1,
               bottom: 24.0,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -302,8 +302,12 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
                       }),
                     ThatButton(
                       isRed: true,
-                      redIcon: widget.redIcon,
-                      whiteIcon: widget.whiteIcon,
+                      redIcon: widget.audioOnly
+                          ? widget.redIcon
+                          : Assets.icons.callSlash,
+                      whiteIcon: widget.audioOnly
+                          ? widget.redIcon
+                          : Assets.icons.call3,
                       onPressed: () {
                         ref.read(localAudioMuted.notifier).state = false;
                         ref.read(remoteAudioMuted.notifier).state = false;
