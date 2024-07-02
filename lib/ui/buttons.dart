@@ -52,14 +52,14 @@ class AcceptCallButton extends StatelessWidget {
 
 class ThatButton extends StatelessWidget {
   const ThatButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.isRed,
     this.color,
     required this.redIcon,
     required this.whiteIcon,
     this.iconHeight,
-  }) : super(key: key);
+  });
 
   final VoidCallback onPressed;
   final bool isRed;

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../agora_rtc_engine.dart';
+import 'package:flutter_microphone_control/flutter_microphone_control.dart';
 
 part 'providers.dart';
 
@@ -32,13 +33,22 @@ class VideoCallController extends StateNotifier<void> {
   late RtcEngine rtcEngine;
   final Ref ref;
 
+  Future<void> _requestPermission(Permission permission) async {
+    PermissionStatus status = await permission.status;
+    while (status.isDenied) {
+      await permission.request();
+      status = await permission.status;
+    }
+  }
+
   Future<void> setupVideoSDKEngine(bool audioOnly) async {
     if (audioOnly) {
-      await Permission.microphone.request();
+      await rtcEngine.disableVideo();
+      await _requestPermission(Permission.microphone);
     } else {
-      await [Permission.microphone, Permission.camera].request();
+      await _requestPermission(Permission.microphone);
+      await _requestPermission(Permission.camera);
     }
-
     if (!audioOnly) {
       const configuration = VideoEncoderConfiguration(
         dimensions: VideoDimensions(
@@ -156,7 +166,7 @@ class VideoCallController extends StateNotifier<void> {
 
   Future<void> swithcLocalAudioStream() async {
     final value = ref.read(localAudioMuted);
-    await rtcEngine.muteLocalAudioStream(!value);
+    toggleMicrophone(!value);
     ref.read(localAudioMuted.notifier).state = !value;
   }
 
@@ -183,6 +193,15 @@ class VideoCallController extends StateNotifier<void> {
   Future<void> leave() async {
     ref.read(joinedInChannel.notifier).state = false;
     ref.read(remoteUser.notifier).state = null;
-    await rtcEngine.leaveChannel();
+    await rtcEngine.leaveChannel(); // Leave the channel
+    await rtcEngine.release(); // Release resources
+  }
+}
+
+void toggleMicrophone(bool value) async {
+  try {
+    await FlutterMicrophoneControl().toggleMicrophone(!value);
+  } catch (e) {
+    log('~~~FlutterMicrophoneControl error is: $e');
   }
 }

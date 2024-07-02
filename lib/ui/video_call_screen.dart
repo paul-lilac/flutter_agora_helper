@@ -19,7 +19,7 @@ class VideoCallScreen extends ConsumerStatefulWidget {
   const VideoCallScreen(
     this.redIcon,
     this.whiteIcon, {
-    Key? key,
+    super.key,
     required this.token,
     required this.channelName,
     required this.audioOnly,
@@ -29,7 +29,7 @@ class VideoCallScreen extends ConsumerStatefulWidget {
     required this.bgColor,
     required this.avatarUrl,
     required this.name,
-  }) : super(key: key);
+  });
 
   final String channelName;
   final String token;
