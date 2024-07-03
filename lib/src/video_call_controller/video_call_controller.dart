@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../agora_rtc_engine.dart';
-import 'package:flutter_microphone_control/flutter_microphone_control.dart';
 
 part 'providers.dart';
 
@@ -195,13 +194,5 @@ class VideoCallController extends StateNotifier<void> {
     ref.read(remoteUser.notifier).state = null;
     await rtcEngine.leaveChannel(); // Leave the channel
     await rtcEngine.release(); // Release resources
-  }
-}
-
-void toggleMicrophone(bool value) async {
-  try {
-    await FlutterMicrophoneControl().toggleMicrophone(!value);
-  } catch (e) {
-    log('~~~FlutterMicrophoneControl error is: $e');
   }
 }
