@@ -151,8 +151,8 @@ class VideoCallController extends StateNotifier<void> {
         token: token,
         channelId: channelName,
         uid: uid,
-        options: ChannelMediaOptions(
-          clientRoleType: role,
+        options: const ChannelMediaOptions(
+          // clientRoleType: role,
           channelProfile: ChannelProfileType.channelProfileCommunication,
         ),
       );
