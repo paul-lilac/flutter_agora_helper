@@ -166,7 +166,7 @@ class VideoCallController extends StateNotifier<void> {
 
   Future<void> swithcLocalAudioStream() async {
     final value = ref.read(localAudioMuted);
-    toggleMicrophone(!value);
+    rtcEngine.muteLocalAudioStream(!value);
     ref.read(localAudioMuted.notifier).state = !value;
   }
 
