@@ -50,11 +50,11 @@ class NoVideoView extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  errorWidget: (context, url, error) => _placeholder(
+                  errorWidget: (context, url, error) => placeholder(
                     MediaQuery.of(context).size.width * 0.25,
                   ),
                   progressIndicatorBuilder: (context, url, progress) =>
-                      _placeholder(
+                      placeholder(
                     MediaQuery.of(context).size.width * 0.25,
                   ),
                 ),
@@ -76,16 +76,16 @@ class NoVideoView extends StatelessWidget {
       ),
     );
   }
-
-  Widget _placeholder(double width) => Container(
-        padding: const EdgeInsets.all(42.0),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.3),
-          shape: BoxShape.circle,
-        ),
-        child: Assets.icons.profileLight2.svg(
-            width: width,
-            fit: BoxFit.contain,
-            color: Colors.black.withOpacity(0.5)),
-      );
 }
+
+Widget placeholder(double width) => Container(
+      padding: const EdgeInsets.all(42.0),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.3),
+        shape: BoxShape.circle,
+      ),
+      child: Assets.icons.profileLight2.svg(
+          width: width,
+          fit: BoxFit.contain,
+          color: Colors.black.withOpacity(0.5)),
+    );

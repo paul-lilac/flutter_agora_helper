@@ -152,44 +152,29 @@ class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
             children: [
               Center(child: _renderRemoteVideo()),
               if (!widget.audioOnly) ...[
-                Consumer(builder: (context, ref, child) {
-                  final state = ref.watch(localVideoStopped);
-
-                  return Positioned(
-                    left: _localPreviewPosition.dx,
-                    top: _localPreviewPosition.dy,
-                    child: GestureDetector(
-                      onPanUpdate: (details) {
-                        setState(() {
-                          _localPreviewPosition += details.delta;
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        clipBehavior: Clip.hardEdge,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        width: size.width * (hideButtons ? 0.36 : 0.3),
-                        child: AspectRatio(
-                          aspectRatio: 9 / 16,
-                          child: state
-                              ? Container(
-                                  color: Colors.black.withOpacity(0.64),
-                                  child: Center(
-                                      child: Icon(
-                                    Icons.account_circle_rounded,
-                                    color: Colors.white,
-                                    size:
-                                        MediaQuery.of(context).size.width * 0.2,
-                                  )),
-                                )
-                              : _renderLocalPreview(),
-                        ),
+                Positioned(
+                  left: _localPreviewPosition.dx,
+                  top: _localPreviewPosition.dy,
+                  child: GestureDetector(
+                    onPanUpdate: (details) {
+                      setState(() {
+                        _localPreviewPosition += details.delta;
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      clipBehavior: Clip.hardEdge,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      width: size.width * (hideButtons ? 0.36 : 0.3),
+                      child: AspectRatio(
+                        aspectRatio: 9 / 16,
+                        child: _renderLocalPreview(),
                       ),
                     ),
-                  );
-                }),
+                  ),
+                ),
                 if (!hideButtons)
                   Positioned(
                     top: 16.0,

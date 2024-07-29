@@ -196,6 +196,7 @@ class VideoCallController extends StateNotifier<void> {
   Future<void> leave() async {
     ref.read(joinedInChannel.notifier).state = false;
     ref.read(remoteUser.notifier).state = null;
-    await rtcEngine.leaveChannel();
+    await rtcEngine.leaveChannel(); // Leave the channel
+    await rtcEngine.release(); // Release resources
   }
 }
